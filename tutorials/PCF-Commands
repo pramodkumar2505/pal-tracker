@@ -1,0 +1,102 @@
+cf login -a <endpoint-url>
+	Email : pramod.kumar54@wipro.com
+	Pass : Wipro@1234
+
+cf apps //Show all apps available in CF
+
+cf delete <app-name> //To delete the app from CF
+
+cf push <app-name> //To push app into CF
+cf push <app-name> route//To push app into CF
+
+cf push <app-name> -p <app-name>.jar --random-route //random route appending app with the cloud url or end-point
+
+cf push pal-tracker -i 2 -p build/libs/pal-tracker.jar --random-route //increase the no of instance i 2
+
+cf logs <app-name> --recent //To see recent logs while pushing apps
+
+cf set-env <app-name> JBP_CONFIG_OPEN_JDK_JRE '{ jre: { version: 11.+ } }' //To set jre in CF Env
+
+cf set-env pal-tracker ENV_VAR_VALUE '{WELCOME_MESSAGE:"Hello Command"}'
+cf stop <app-name> //to stop app that running on CF
+cf help set-env
+cf env <app-name>
+
+//**below command used to bind database service in cloud through Flyway
+cf marketplace // get all service list
+cf marketplace //command to find a MySQL database service on your Pivotal Cloud Foundry installation
+cf create-service // command to create an instance of this service named tracker-database in the review space
+cf create-service clearDB <plan-name> <servicename>
+cf create-service clearDB spark tracker-database
+cf s //Show all the service list
+cf bind-service pal-tracker tracker-database //It is used to bind service db to app in cloud
+cf service ${SERVICE_NAME} //Confirm that the service instance is being created
+cf service tracker-database
+/************************************/
+cf create-service-key MY-DB EXTERNAL-ACCESS-KEY
+cf create-service-key tracker EXTERNAL-ACCESS-KEY
+
+cf enable-ssh pal-traker
+cf allow-space-ssh REVIEW
+
+/**********SET ENV VAR on Cloud******/
+cf set-env pal-tracker MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE "*"
+cf set-env pal-tracker MANAGEMENT_ENDPOINT_HEALTH_SHOWDETAILS always
+cf restage pal-tracker
+/************************************/
+
+/************************************/
+Note : SSH tunnel is used to check whether database schema and data is created or not on cloud.
+1 cf enable-ssh pal-tracker
+2 cf allow-space-ssh review(optional if it is already enabled)
+3 cf create-service-key tracker-database EXTERNAL-ACCESS-KEY
+4 cf service-key tracker-database EXTERNAL-ACCESS-KEY
+5 cf ssh -L 63306:192.168.112.28:3306 pal-tracker
+you will get $ prompt
+
+6) open another command prompt
+mysql -u bf02d34df020439ba6b171da127daa3f -h 127.0.0.1 -p -D service_instance_db -P 63306
+Enter password: ****************
+
+
+cf ssh -L 63306:us-cdbr-iron-east-03.cleardb.net:3306 pal-tracker
+us-cdbr-iron-east-03.cleardb.net
+
+
+--------Console-Output--------------
+Getting key EXTERNAL-ACCESS-KEY for service instance tracker-database as pramod.kumar54@wipro.com...
+
+{
+ "hostname": "us-cdbr-iron-east-03.cleardb.net",
+ "jdbcUrl": "jdbc:mysql://us-cdbr-iron-east-03.cleardb.net/ad_765bac1e898ad29?user=b5a03ff68a961c\u0026password=aa0f6575",
+ "name": "ad_765bac1e898ad29",
+ "password": "aa0f6575",
+ "port": "3306",
+ "uri": "mysql://b5a03ff68a961c:aa0f6575@us-cdbr-iron-east-03.cleardb.net:3306/ad_765bac1e898ad29?reconnect=true",
+ "username": "b5a03ff68a961c"
+}
+
+
+cf ssh -L 63306:us-cdbr-iron-east-03.cleardb.net:3306 pal-tracker
+
+mysql -u b5a03ff68a961c -h 0 -p -D ad_b2fca6t49704585d -P 63306
+
+/************************************/
+
+//*****To submit the assessments*****/
+./gradlew cloudNativeDeveloperCloudFoundry -PserverUrl=https://${APP_URL}
+./gradlew cloudNativeDeveloperCloudFoundry -PserverUrl=https://pal-tracker-unexpected-parrot.cfapps.io
+./gradlew cloudNativeDeveloperCloudFoundry -PserverUrl=https://pal-tracker-app-bold-wallaby.cfapps.io --debug
+/************************************/
+gradle cloudNativeDeveloperSimpleApp -PserverUrl=https://pal-tracker-unexpected-parrot.cfapps.io
+
+cf push pal-reacker -p build/libs/pal-tracker.jar --random-route
+
+gradlew cloudNativeDeveloperCloudFoundry -P serverUrl=https://pal-tracker-silly-camel.cfapps.io
+
+gradlew cloudNativeDeveloperCloudFoundry -P serverUrl=https://pal-tracker564-silly-camel.cfapps.io
+gradlew cloudNativeDeveloperDatabaseMigrations -P serverUrl=pal-tracker564-silly-camel.cfapps.io
+
+gradlew cloudNativeDeveloperDatabaseAccess -P serverUrl=pal-tracker564-silly-camel.cfapps.io
+
+gradlew cloudNativeDeveloperDatabaseAccess -P serverUrl=pal-tracker564-silly-camel.cfapps.io
